@@ -10,6 +10,14 @@ describe('AwsS3', () => {
     expect(pluginNames).toContain('AwsS3')
   })
 
+  it('calls i18nInit when constructed', () => {
+    const i18nInit = jest.fn()
+    AwsS3.prototype.i18nInit = i18nInit
+    const core = new Core()
+    core.use(AwsS3)
+    expect(i18nInit).toHaveBeenCalled()
+  })
+
   describe('getUploadParameters', () => {
     it('Throws an error if configured without companionUrl', () => {
       const core = new Core()
