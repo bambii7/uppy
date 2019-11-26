@@ -1,6 +1,13 @@
 const Core = require('@uppy/core')
 const AwsS3 = require('./')
 
+const file = {
+  meta: {
+    name: 'foo.jpg',
+    type: 'image/jpg'
+  }
+}
+
 describe('AwsS3', () => {
   it('Registers AwsS3 upload plugin', () => {
     const core = new Core()
@@ -31,14 +38,40 @@ describe('AwsS3', () => {
       const core = new Core()
       core.use(AwsS3, { companionUrl: 'https://uppy-companion.myapp.com/' })
       const awsS3 = core.getPlugin('AwsS3')
-      const file = {
-        meta: {
-          name: 'foo.jpg',
-          type: 'image/jpg'
-        }
-      }
 
       expect(() => awsS3.opts.getUploadParameters(file)).not.toThrow()
+    })
+  })
+
+  describe('validateParameters', () => {
+    it('throws an error with invalid params', () => {
+      const invalidParams = {
+        url: [''],
+        methods: '',
+        fields: {}
+      }
+      const fn = () => AwsS3.prototype.validateParameters.call(this, file, invalidParams)
+      expect(fn).toThrow()
+    })
+
+    it('throws an error with invalid params', () => {
+      const validParams = {
+        url: '',
+        methods: {},
+        fields: {}
+      }
+      const fn = () => AwsS3.prototype.validateParameters.call(this, file, validParams)
+      expect(fn).not.toThrow()
+    })
+
+    it('returns the param object when valid', () => {
+      const params = {
+        url: '',
+        methods: {},
+        fields: {}
+      }
+      const validParams = AwsS3.prototype.validateParameters.call(this, file, params)
+      expect(validParams).toStrictEqual(params)
     })
   })
 })
