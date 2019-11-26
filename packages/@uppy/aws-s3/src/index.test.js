@@ -12,8 +12,8 @@ describe('AwsS3', () => {
   it('Registers AwsS3 upload plugin', () => {
     const core = new Core()
     core.use(AwsS3)
-
     const pluginNames = core.plugins.uploader.map((plugin) => plugin.constructor.name)
+
     expect(pluginNames).toContain('AwsS3')
   })
 
@@ -22,6 +22,7 @@ describe('AwsS3', () => {
     AwsS3.prototype.i18nInit = i18nInit
     const core = new Core()
     core.use(AwsS3)
+
     expect(i18nInit).toHaveBeenCalled()
   })
 
@@ -41,6 +42,15 @@ describe('AwsS3', () => {
 
       expect(() => awsS3.opts.getUploadParameters(file)).not.toThrow()
     })
+
+    it('Does not throw an error with campanionUrl configured', () => {
+      const core = new Core()
+      core.use(AwsS3, { companionUrl: 'https://uppy-companion.myapp.com/' })
+      const awsS3 = core.getPlugin('AwsS3')
+      const uploadParams = awsS3.opts.getUploadParameters(file)
+
+      expect(uploadParams).toBeInstanceOf(Promise)
+    })
   })
 
   describe('validateParameters', () => {
@@ -51,6 +61,7 @@ describe('AwsS3', () => {
         fields: {}
       }
       const fn = () => AwsS3.prototype.validateParameters.call(this, file, invalidParams)
+
       expect(fn).toThrow()
     })
 
@@ -61,6 +72,7 @@ describe('AwsS3', () => {
         fields: {}
       }
       const fn = () => AwsS3.prototype.validateParameters.call(this, file, validParams)
+
       expect(fn).not.toThrow()
     })
 
@@ -71,6 +83,7 @@ describe('AwsS3', () => {
         fields: {}
       }
       const validParams = AwsS3.prototype.validateParameters.call(this, file, params)
+
       expect(validParams).toStrictEqual(params)
     })
   })
